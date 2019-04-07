@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/lib/vue.js"></script>
+    <script src="js/lib/vue-router.js"></script>
+    <script src="js/lib/axios.min.js"></script>
+
+</head>
+<body>
+    <div id="nav"></div>
+    <div id="side-nav">
+        <!--<side-nav-component v-for="item in myList"></side-nav-component>-->
+        <div is="side-nav-component"></div>
+    </div>
+    <div id="app">
+        <router-view></router-view>
+    </div>
+</body>
+<script>
+    axios.defaults.withCredentials = true;
+    const Zhihu = {
+        template: '<div id="zhihu" class="zhihu"><p>This is the project Zhihu-Spider.</p>' +
+        '<router-view></router-view></div>'
+    };
+    const ZhihuHome = {
+        template: '<div id="zhihu-home" class="zhihu"><p>This is the home of Zhihu-Spider.</p>' +
+        '<p><router-link to="zhihu/person">Person</router-link></p>' +
+        '<p><router-link to="zhihu/entity">School or Company</router-link></p>'    +
+        '</div>'
+    };
+    const Statistic = {
+        template: '<div class="zhihu">Statistic {{ $route.params.id }}</div>'
+    };
+    const Person = {
+        template: '<div class="zhihu">Person {{ $route.params.id }}</div>'
+    };
+
+    let simplePersonData = {
+        id: '',
+        response: '',
+    };
+
+    const myHearder = new Headers({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    const SimplePerson = {
+        template: '<div class="zhihu">' +
+        '<p>SimplePerson {{ $route.params.id }}</p>' +
+        '<form><input v-model="id" placeholder="Input the ID of person">' +
+        '<button v-on:click="ajaxGet()">Submit</button></form>' +
+        '<p>{{ id }}</p>' +
+        '<p>{{ JSON.stringify(response) }}</p>' +
+
+        '</div>',
+        data: function() {
+            return simplePersonData;
+        },
+        methods: {
+            ajaxGet: function() {
+                console.log(this.id);
+                axios.get('http://127.0.0.1:8000/zhihu/simple_person', {
+                    params: {id:this.id},
+                    headers: myHearder,
+                }).then(function (res) {
+                        console.log(res);
+                        Vue.set(simplePersonData, 'response', res.data);
+                    }
+                );
+            }
+        }
+    };
+
+    const Entity = {
+        template: '<div class="zhihu">Entity {{ $route.params.id }}</div>'
+    };
+    const TopPersonByValue = {
+        template: '<div class="zhihu">TopPersonByValue {{ $route.params.id }}</div>'
+    };
+    const TopEntityByPersonNumber = {
+        template: '<div class="zhihu">TopEntityByPersonNumber {{ $route.params.id }}</div>'
+    };
+    const TopPersonOfEntity = {
+        template: '<div class="zhihu">TopPersonOfEntity {{ $route.params.id }}</div>'
+    };
+
+
+</script>
+
+<script>
+    const router = new VueRouter({
+        routes:[
+            {
+                path: '/projects/zhihu', component: Zhihu,
+                children: [
+                    {path:'', component:ZhihuHome},
+                    {path:'statistic', component:Statistic},
+                    {path:'person', component:Person},
+                    {path:'simple_person', component:SimplePerson},
+                    {path:'entity', component:Entity},
+                    {path:'top_person_by_value', component:TopPersonByValue},
+                    {path:'top_entity_by_person_number', component:Statistic},
+                    {path:'top_entity_by_person_number', component:TopEntityByPersonNumber},
+                    {path:'top_person_of_entity', component:TopPersonOfEntity}
+                ]
+            }
+
+        ]
+    });
+    const app = new Vue({router}).$mount('#app');
+</script>
+<!--<script src="js/zhihu.js"></script>-->
+<!--<script src="js/router.js"></script>-->
+
+</html>
